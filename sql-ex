@@ -1,0 +1,467 @@
+Задание: 1 (Serge I: 2002-09-30)
+Найдите номер модели, скорость и размер жесткого диска для всех ПК стоимостью менее 500 дол. Вывести: model, speed и hd
+
+SELECT model, speed, hd
+FROM pc
+WHERE pc.price < 500 
+
+
+Задание: 2 (Serge I: 2002-09-21)
+Найдите производителей принтеров. Вывести: maker
+
+SELECT DISTINCT maker
+FROM product
+WHERE type = 'Printer'
+
+
+Задание: 3 (Serge I: 2002-09-30)
+Найдите номер модели, объем памяти и размеры экранов ПК-блокнотов, цена которых превышает 1000 дол.
+
+SELECT model, ram, screen
+FROM laptop
+WHERE price > 1000
+
+
+Задание: 4 (Serge I: 2002-09-21)
+Найдите все записи таблицы Printer для цветных принтеров.
+
+SELECT *
+FROM printer
+WHERE color = 'y'
+
+
+Задание: 5 (Serge I: 2002-09-30)
+Найдите номер модели, скорость и размер жесткого диска ПК, имеющих 12x или 24x CD и цену менее 600 дол.
+
+SELECT model, speed, hd
+FROM pc 
+WHERE (cd = '12x' OR cd = '24x') AND price < 600
+
+
+Задание: 6 (Serge I: 2002-10-28)
+Для каждого производителя, выпускающего ПК-блокноты c объёмом жесткого диска не менее 10 Гбайт, найти скорости таких ПК-блокнотов. Вывод: производитель, скорость.
+
+SELECT DISTINCT P.maker, L.speed
+FROM product AS P JOIN laptop AS L
+ON P.model = L.model 
+WHERE L.hd >= 10 AND P.type = 'Laptop'
+
+
+Задание: 7 (Serge I: 2002-11-02)
+Найдите номера моделей и цены всех имеющихся в продаже продуктов (любого типа) производителя B (латинская буква).
+
+SELECT DISTINCT Prod.model, L.price
+FROM product AS Prod JOIN laptop AS L
+ON Prod.model = L.model
+WHERE Prod.maker = 'B'
+UNION
+SELECT DISTINCT Prod.model, PC.price
+FROM product AS Prod JOIN pc AS PC
+ON Prod.model = PC.model
+WHERE Prod.maker = 'B'
+UNION
+SELECT DISTINCT Prod.model, Prin.price
+FROM product AS Prod JOIN printer AS Prin
+ON Prod.model = Prin.model
+WHERE Prod.maker = 'B'
+
+
+Задание: 8 (Serge I: 2003-02-03)
+Найдите производителя, выпускающего ПК, но не ПК-блокноты.
+
+SELECT maker
+FROM product
+WHERE type = 'PC'
+EXCEPT
+SELECT maker
+FROM product
+WHERE type = 'Laptop'
+
+
+Задание: 9 (Serge I: 2002-11-02)
+Найдите производителей ПК с процессором не менее 450 Мгц. Вывести: Maker
+
+SELECT DISTINCT Prod.maker AS Maker
+FROM product AS Prod RIGHT JOIN pc AS PC  
+ON Prod.model = PC.model
+WHERE PC.speed >= 450
+
+
+Задание: 10 (Serge I: 2002-09-23)
+Найдите модели принтеров, имеющих самую высокую цену. Вывести: model, price
+
+SELECT model, price
+FROM printer
+WHERE price = (SELECT MAX(price) FROM printer)
+GROUP BY model, price
+
+
+Задание: 11 (Serge I: 2002-11-02)
+Найдите среднюю скорость ПК.
+
+SELECT AVG(speed) AS average_speed
+FROM pc
+
+
+Задание: 12 (Serge I: 2002-11-02)
+Найдите среднюю скорость ПК-блокнотов, цена которых превышает 1000 дол.
+
+SELECT AVG(speed) AS average_speed
+FROM laptop
+WHERE price > 1000
+
+
+Задание: 13 (Serge I: 2002-11-02)
+Найдите среднюю скорость ПК, выпущенных производителем A.
+
+SELECT AVG(PC.speed) AS average_speed
+FROM product AS Prod JOIN pc AS PC
+ON Prod.model = PC.model
+WHERE Prod.maker = 'A'
+
+
+Задание: 14 (Serge I: 2002-11-05)
+Найдите класс, имя и страну для кораблей из таблицы Ships, имеющих не менее 10 орудий.
+
+SELECT S.class, S.name, C.country
+FROM Classes AS C RIGHT JOIN Ships AS S
+ON C.class = S.class
+WHERE C.numGuns >= 10
+
+
+Задание: 15 (Serge I: 2003-02-03)
+Найдите размеры жестких дисков, совпадающих у двух и более PC. Вывести: HD
+
+SELECT hd
+FROM pc
+GROUP BY hd
+HAVING COUNT(hd) >= 2
+
+
+Задание: 16 (Serge I: 2003-02-03)
+Найдите пары моделей PC, имеющих одинаковые скорость и RAM. В результате каждая пара указывается только один раз, т.е. (i,j), но не (j,i), Порядок вывода: модель с большим номером, модель с меньшим номером, скорость и RAM.
+
+SELECT DISTINCT pc.model, copy.model, pc.speed, pc.ram
+FROM pc AS pc
+CROSS JOIN pc AS copy
+WHERE pc.speed = copy.speed
+      AND
+      pc.ram = copy.ram
+      AND
+      pc.model > copy.model
+
+
+Задание: 17 (Serge I: 2003-02-03)
+Найдите модели ПК-блокнотов, скорость которых меньше скорости каждого из ПК.
+Вывести: type, model, speed
+
+SELECT DISTINCT product.type, laptop.model, laptop.speed
+FROM laptop, product
+WHERE (laptop.speed < ALL (SELECT speed FROM pc)) AND (product.type = 'Laptop')
+
+
+Задание: 18 (Serge I: 2003-02-03)
+Найдите производителей самых дешевых цветных принтеров. Вывести: maker, price
+
+SELECT DISTINCT Prod.maker, Prin.price
+FROM product AS Prod JOIN printer AS Prin
+ON Prod.model = Prin.model
+WHERE Prin.price =(SELECT MIN(price) FROM printer WHERE color = 'y') AND Prin.color = 'y'
+
+
+Задание: 19 (Serge I: 2003-02-13)
+Для каждого производителя, имеющего модели в таблице Laptop, найдите средний размер экрана выпускаемых им ПК-блокнотов.
+Вывести: maker, средний размер экрана.
+
+SELECT Prod.maker, AVG(screen) AS avg_screen
+FROM product AS Prod RIGHT JOIN laptop AS Lap
+ON Prod.model = Lap.model
+GROUP BY maker
+
+
+Задание: 20 (Serge I: 2003-02-13)
+Найдите производителей, выпускающих по меньшей мере три различных модели ПК. Вывести: Maker, число моделей ПК.
+
+SELECT maker, COUNT(maker) AS qty_makers
+FROM product
+WHERE type = 'PC'
+GROUP BY maker
+HAVING COUNT(maker) >= 3
+
+
+Задание: 21 (Serge I: 2003-02-13)
+Найдите максимальную цену ПК, выпускаемых каждым производителем, у которого есть модели в таблице PC.
+Вывести: maker, максимальная цена.
+
+SELECT Prod.maker, MAX(PC.price) AS max_price
+FROM product AS Prod JOIN pc AS PC
+ON Prod.model = PC.model
+GROUP BY maker
+
+
+Задание: 22 (Serge I: 2003-02-13)
+Для каждого значения скорости ПК, превышающего 600 МГц, определите среднюю цену ПК с такой же скоростью. Вывести: speed, средняя цена.
+
+SELECT speed, AVG(price) AS average_price
+FROM pc
+WHERE speed > 600
+GROUP BY speed
+
+
+Задание: 23 (Serge I: 2003-02-14)
+Найдите производителей, которые производили бы как ПК
+со скоростью не менее 750 МГц, так и ПК-блокноты со скоростью не менее 750 МГц.
+Вывести: Maker
+
+SELECT Prod.maker
+FROM product AS Prod JOIN laptop AS Lap
+ON Prod.model = Lap.model
+WHERE Lap.speed >= 750
+INTERSECT
+SELECT Prod.maker
+FROM product AS Prod JOIN pc AS PC
+ON Prod.model = PC.model
+WHERE PC.speed >= 750
+
+
+Задание: 24 (Serge I: 2003-02-03)
+Перечислите номера моделей любых типов, имеющих самую высокую цену по всей имеющейся в базе данных продукции.
+
+WITH
+UnionValues AS (SELECT model, price FROM laptop
+                UNION 
+                SELECT model, price FROM pc
+                UNION 
+                SELECT model, price FROM printer)
+
+SELECT model
+FROM UnionValues
+WHERE price = (SELECT MAX(price) FROM UnionValues)
+
+
+Задание: 25 (Serge I: 2003-02-14)
+Найдите производителей принтеров, которые производят ПК с наименьшим объемом RAM и с самым быстрым процессором среди всех ПК, имеющих наименьший объем RAM. Вывести: Maker
+
+SELECT DISTINCT maker
+FROM product
+WHERE model IN (SELECT model
+		FROM pc
+		WHERE ram = (SELECT MIN(ram)
+  			     FROM pc)
+		AND speed = (SELECT MAX(speed)
+  			     FROM pc
+  			     WHERE ram = (SELECT MIN(ram)
+   			     		  FROM pc)
+  			     )
+		)
+AND
+maker IN (SELECT maker
+	  FROM product
+	  WHERE type='printer')
+
+
+Задание: 26 (Serge I: 2003-02-14)
+Найдите среднюю цену ПК и ПК-блокнотов, выпущенных производителем A (латинская буква). Вывести: одна общая средняя цена.
+
+SELECT AVG(price) AS average_price
+FROM
+(SELECT price
+FROM product AS Prod JOIN pc AS PC
+ON Prod.model = PC.model
+WHERE Prod.maker = 'A'
+UNION ALL
+SELECT price
+FROM product AS Prod JOIN laptop AS Lap
+ON Prod.model = Lap.model
+WHERE Prod.maker = 'A') AS UnionTable
+
+
+Задание: 27 (Serge I: 2003-02-03)
+Найдите средний размер диска ПК каждого из тех производителей, которые выпускают и принтеры. Вывести: maker, средний размер HD.
+
+SELECT maker, AVG(hd) AS average_hd
+FROM product AS Prod JOIN pc AS PC
+ON Prod.model = PC.model
+WHERE maker IN (SELECT maker FROM product WHERE type = 'PC'
+                INTERSECT
+                SELECT maker FROM product WHERE type = 'Printer')
+GROUP BY maker
+
+
+Задание: 28 (Serge I: 2012-05-04)
+Используя таблицу Product, определить количество производителей, выпускающих по одной модели.
+
+SELECT COUNT(maker) AS count_makers
+FROM
+  (SELECT maker
+  FROM product
+  GROUP BY maker
+  HAVING COUNT(maker) = 1) AS Res
+
+
+Задание: 29 (Serge I: 2003-02-14)
+В предположении, что приход и расход денег на каждом пункте приема фиксируется не чаще одного раза в день [т.е. первичный ключ (пункт, дата)], написать запрос с выходными данными (пункт, дата, приход, расход). Использовать таблицы Income_o и Outcome_o.
+
+SELECT IO.point, IO.date, IO.inc, OO.out
+FROM Outcome_o AS OO
+RIGHT JOIN Income_o AS IO 
+ON IO.point = OO.point AND IO.date = OO.date
+UNION
+SELECT OO.point, OO.date, IO.inc, OO.out
+FROM Income_o AS IO
+RIGHT JOIN Outcome_o AS OO
+ON IO.point = OO.point AND IO.date = OO.date
+
+
+Задание: 30 (Serge I: 2003-02-14)
+В предположении, что приход и расход денег на каждом пункте приема фиксируется произвольное число раз (первичным ключом в таблицах является столбец code), требуется получить таблицу, в которой каждому пункту за каждую дату выполнения операций будет соответствовать одна строка.
+Вывод: point, date, суммарный расход пункта за день (out), суммарный приход пункта за день (inc). Отсутствующие значения считать неопределенными (NULL).
+
+SELECT point, date, SUM(sum_out), SUM(sum_inc)
+FROM
+  (SELECT point, date, SUM(inc) AS sum_inc, NULL AS sum_out
+   FROM Income
+   GROUP BY point, date
+   UNION
+   SELECT point, date, NULL AS sum_inc, SUM(out) AS sum_out
+   FROM Outcome 
+   GROUP BY point, date) AS Res
+GROUP BY point, date
+
+
+Задание: 31 (Serge I: 2002-10-22)
+Для классов кораблей, калибр орудий которых не менее 16 дюймов, укажите класс и страну.
+
+SELECT class, country
+FROM Classes
+WHERE bore >= 16
+
+
+Задание: 32 (Serge I: 2003-02-17)
+Одной из характеристик корабля является половина куба калибра его главных орудий (mw). С точностью до 2 десятичных знаков определите среднее значение mw для кораблей каждой страны, у которой есть корабли в базе данных.
+
+SELECT country, CAST(  AVG((power(bore, 3)/2)) AS DECIMAL(38,2)  ) AS mw
+FROM (SELECT C.country, C.bore
+      FROM Classes AS C
+      JOIN (SELECT name, class 
+                 FROM Ships
+                UNION
+                 SELECT ship, ship
+                 FROM Outcomes) AS U
+      ON C.class = U.class) AS Res
+GROUP BY country
+
+
+Задание: 33 (Serge I: 2002-11-02)
+Укажите корабли, потопленные в сражениях в Северной Атлантике (North Atlantic). Вывод: ship.
+
+SELECT ship
+FROM Outcomes
+WHERE result = 'sunk' AND battle = 'North Atlantic'
+
+Задание: 34 (Serge I: 2002-11-04)
+По Вашингтонскому международному договору от начала 1922 г. запрещалось строить линейные корабли водоизмещением более 35 тыс.тонн. Укажите корабли, нарушившие этот договор (учитывать только корабли c известным годом спуска на воду). Вывести названия кораблей.
+
+SELECT S.name
+FROM Classes AS C
+LEFT JOIN Ships AS S
+ON C.class = S.class
+WHERE C.displacement > 35000 
+      AND
+      S.launched >= 1922
+      AND
+      type = 'bb'
+
+
+Задание: 35 (qwrqwr: 2012-11-23)
+В таблице Product найти модели, которые состоят только из цифр или только из латинских букв (A-Z, без учета регистра).
+Вывод: номер модели, тип модели.
+
+SELECT model, type
+FROM product
+WHERE model NOT LIKE '%[^0-9]%'
+      OR
+      LOWER(model) NOT like '%[^a-z]%'
+
+Задание: 36 (Serge I: 2003-02-17)
+Перечислите названия головных кораблей, имеющихся в базе данных (учесть корабли в Outcomes).
+
+SELECT DISTINCT *
+FROM 
+  (SELECT name
+   FROM Ships
+   WHERE name = class
+  UNION ALL
+   SELECT O.ship
+   FROM Outcomes AS O
+   RIGHT JOIN Classes AS C
+   ON C.class = O.ship
+   WHERE C.class = O.ship) AS Res
+
+
+Задание: 37 (Serge I: 2003-02-17)
+Найдите классы, в которые входит только один корабль из базы данных (учесть также корабли в Outcomes).
+
+SELECT class
+FROM
+  (SELECT C.class, S.name
+   FROM Classes AS C
+   LEFT JOIN Ships AS S
+   ON C.class = S.class
+  UNION 
+   SELECT C.class, O.ship
+   FROM Classes AS C
+   LEFT JOIN Outcomes AS O
+   ON C.class = O.ship
+   WHERE ship NOT IN (SELECT name FROM Ships)) AS Res
+WHERE name IS NOT NULL
+GROUP BY class
+HAVING COUNT(class) = 1
+
+
+Задание: 38 (Serge I: 2003-02-19)
+Найдите страны, имевшие когда-либо классы обычных боевых кораблей ('bb') и имевшие когда-либо классы крейсеров ('bc').
+
+SELECT country
+FROM Classes
+WHERE type = 'bb'
+INTERSECT
+SELECT country
+FROM Classes
+WHERE type = 'bc'
+
+
+Задание: 39 (Serge I: 2003-02-14)
+Найдите корабли, `сохранившиеся для будущих сражений`; т.е. выведенные из строя в одной битве (damaged), они участвовали в другой, произошедшей позже.
+
+WITH
+OutcomedShips AS (SELECT *
+                  FROM Outcomes AS O
+                  JOIN Battles AS B
+                  ON O.battle = B.name)
+
+SELECT DISTINCT ship
+FROM OutcomedShips AS A
+WHERE ship IN (SELECT ship
+               FROM OutcomedShips AS B
+               WHERE B.date < A.date 
+                     AND
+                     B.result = 'damaged')
+
+
+
+Задание: 40 (Serge I: 2012-04-20)
+Найти производителей, которые выпускают более одной модели, при этом все выпускаемые производителем модели являются продуктами одного типа.
+Вывести: maker, type
+
+SELECT maker, type
+FROM product
+WHERE maker IN (SELECT maker
+                FROM product
+                GROUP BY maker
+                HAVING COUNT(DISTINCT type) = 1
+                       AND
+                       COUNT(DISTINCT model) > 1)
+GROUP BY maker, type
+
+
